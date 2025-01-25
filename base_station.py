@@ -4,18 +4,16 @@ import math
 
 # API Configurazione
 api_key = "pk.0bbad14bcc06727bb61e865dc64f230b"
-lat = 46.065
-lon = 11.15
-scale = 100  # Area di copertura in metri
+
 url = "https://opencellid.org/cell/getInArea"
 format_type = "json"  # Formato dei dati restituiti
 
 # Calcolo della bounding box (BBOX)
-degree_scale = scale / 111000  # Converti metri in gradi
-lat_min = lat - degree_scale
-lat_max = lat + degree_scale
-lon_min = lon - degree_scale / math.cos(math.radians(lat))
-lon_max = lon + degree_scale / math.cos(math.radians(lat))
+
+lat_max=46.07135
+lat_min=46.05938
+lon_max=11.16365
+lon_min=11.14743
 
 # Creazione della stringa del payload
 payload = {

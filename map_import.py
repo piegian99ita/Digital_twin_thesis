@@ -136,7 +136,8 @@ def createMaterials(material_1,material_2,material_3):
     
     # change material color
     itu_brick.diffuse_color = (0.0833207, 0.0202846, 0.00993753, 1) 
-    itu_plasterboard.diffuse_color =(0.868736, 1.00038, 0.374685, 1)
+    itu_plasterboard.diffuse_color = (0.283222, 0.748403, 0.143687, 1)
+
 
     # Get the material's node tree
     node_tree1 = itu_concrete.node_tree
@@ -175,18 +176,7 @@ def createMaterials(material_1,material_2,material_3):
 
 
 
-
-
 def mitsubaExport():
-    
-    addon_name = "mitsuba_blender"
-    addon_installed = addon_name in bpy.context.preferences.addons
-    addon_enabled = addon_installed and bpy.context.preferences.addons[addon_name].preferences
-
-    if not addon_enabled:
-        print("Mitsuba is not installed or activated")
-        return
-
     path = "/home/piegian99/Digital_twin_thesis/mitsuba_export/"
 
     file_name = "test_scene.xml"
@@ -235,8 +225,9 @@ assignMaterials(material_1,material_2,material_3)
 
 #INCREASE THE LIGHTINING TO RENDER IT CORRECTLY
 bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[0].default_value = (0.9, 0.9, 0.9, 1)
+bpy.context.scene.world.color = (1, 1, 1)
 
 #FUNCTION TO EXPORT THE SCENE BY USING MITSUBA ADD-ON IN .xml FORMAT TO USE IN SIONNA
-#mitsubaExport()
+mitsubaExport()
 
 

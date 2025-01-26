@@ -1,54 +1,92 @@
 import numpy as np
 import tensorflow as tf
-
-from sionna,rt import load_scene, Transmitter, Receiver, PlanarArray, Paths2CIR
-
-%matpltlib widget
 import matplotlib.pyplot as plt
 
+from sionna.rt import load_scene, Transmitter, Receiver, PlanarArray
+
+# Carica la scena
 scene = load_scene("../mitsuba_export/test_scene.xml")
 
-for i,obj in enumerate(scene.objects.values()):
+# Stampa i primi 10 oggetti della scena e i loro materiali radio
+for i, obj in enumerate(scene.objects.values()):
     print(f"{obj.name} : {obj.radio_material.name}")
-    if i>=10:
+    if i >= 10:
         break
 
-scene.tx_array = PlanarArray(numrows=4,
-                             numcols=4,
-                             vertical_spacing=0.5,
-                             horizontal_spacing=0.5,
-                             pattern="tr38901",
-                             polarization = "V")
+# Configura gli array di trasmissione e ricezione
+scene.tx_array = PlanarArray(
+    num_rows=4,
+    num_cols=4,
+    vertical_spacing=0.5,
+    horizontal_spacing=0.5,
+    pattern="tr38901",
+    polarization="V"
+)
 
-scene.rx_array =PlanarArray(num_rows=1,
-                            num_cols=1
-                            vertical_spacing=0.5,
-                            horizontal_spacing=0.5,
-                             pattern="iso",
-                             polarization = "V")
+scene.rx_array = PlanarArray(
+    num_rows=1,
+    num_cols=1,
+    vertical_spacing=0.5,
+    horizontal_spacing=0.5,
+    pattern="dipole",
+    polarization="cross"
+)
 
-tx = Transmitter("tx", [0,0,0], [0.0, 0.0 0.0])
+# Aggiungi trasmettitore e ricevitore alla scena
+tx = Transmitter("tx", [0, 0, 0], [0.0, 0.0, 0.0])
 scene.add(tx)
 
-rx = Receiver("rx", [0,0,0], [0.0, 0.0 0.0])
+rx = Receiver("rx", [0, 0, 0], [0.0, 0.0, 0.0])
 scene.add(rx)
 
-cm =scene.coverage_map()
+# Genera la mappa di copertura
+cm = scene.coverage_map()
+'''
+# Salva la mappa di copertura come immagine
+plt.figure(figsize=(8, 6))
+plt.imshow(cm, cmap='viridis', origin='lower')
+plt.colorbar(label="Coverage")
+plt.title("Coverage Map")
+plt.savefig("coverage_map.png", dpi=300)  # Salva come PNG
+plt.close()
 
-scene.preview(coverage_map=cm)
+# Renderizza la scena (puoi saltare questa parte se non desideri visualizzare il rendering)
+#scene.render("preview", coverage_map=cm)
 
-scene.render("preview",coverage_map=cm)
+# Calcola i percorsi di propagazione
+paths = scene.compute_paths()
 
-paths =scene.compute_paths()
+# Converti i percorsi in CIR
+a, tau = paths.cir()
 
-p2c =  Paths2CIR(sampling_frequency=100e6, scene=scene)
-a,tau = p2c(paths.as_tuple())
-
-plt.figure()
-plt.stem(tau[0,0,0,:]*1e9, np.abs(a[0,0,0,0,0,:,0]))
+# Grafico del ritardo
+plt.figure(figsize=(8, 6))
+plt.stem(tau[0, 0, 0, :] * 1e9, np.abs(a[0, 0, 0, 0, 0, :, 0]), basefmt=" ", use_line_collection=True)
 plt.xlabel("Delay [ns]")
 plt.ylabel(r"$|a|$")
+plt.title("Channel Impulse Response (CIR)")
+plt.grid(True)
+plt.savefig("cir_graph.png", dpi=300)  # Salva come PNG
+plt.close()
 
-scene.preview(paths=paths)
 
+
+# Salva i percorsi calcolati come immagine
+# Puoi personalizzare il rendering dei percorsi in base alle tue necessità
+plt.figure(figsize=(8, 6))
+for path in paths.values():
+    plt.plot(path[:, 0], path[:, 1], marker='o', markersize=3, linestyle='-', color='blue', alpha=0.7)
+plt.xlabel("X [m]")
+plt.ylabel("Y [m]")
+plt.title("Propagation Paths")
+plt.grid(True)
+plt.savefig("propagation_paths.png", dpi=300)  # Salva come PNG
+plt.close()
+
+# Renderizza la scena con i percorsi calcolati e la mappa di copertura
 scene.render("preview", paths=paths, coverage_map=cm)
+
+# Salva l'immagine del rendering della scena (opzionale)
+# Usa l'output del rendering per creare l'immagine
+# scene.render("output_image.png")  # Esempio di salvataggio immagine di rendering
+'''

@@ -1,3 +1,5 @@
-/mitsuba_export/
+/mitsuba_export/*
+
+!mitsuba_export/.gitkeep
 
 /__pycache__/
